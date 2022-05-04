@@ -1,0 +1,127 @@
+<html>
+    <head>
+        <script src="/assets/js/three.min.js"></script>
+        <script src="/assets/js/STLLoader.js"></script>
+        <script src="/assets/js/OrbitControls.js"></script>
+        
+        <script type="text/javascript">
+            
+            function STLViewer(model, elementID, color, autoRotate) {
+                var elem = document.getElementById(elementID)
+                var camera = new THREE.PerspectiveCamera(70, elem.clientWidth/elem.clientHeight, 1, 1000);
+                var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+                renderer.setSize(elem.clientWidth, elem.clientHeight);
+                elem.appendChild(renderer.domElement);
+                
+                window.addEventListener('resize', function () {
+                    renderer.setSize(elem.clientWidth, elem.clientHeight);
+                    camera.aspect = elem.clientWidth/elem.clientHeight;
+                    camera.updateProjectionMatrix();
+                }, false);
+                
+                var controls = new THREE.OrbitControls(camera, renderer.domElement);
+                controls.enableDamping = true;
+                controls.rotateSpeed = 0.4;
+                controls.dampingFactor = 0.1;
+                controls.enableZoom = true;
+                controls.autoRotate = autoRotate;
+                controls.autoRotateSpeed = .75;
+
+                var scene = new THREE.Scene();
+                scene.add(new THREE.HemisphereLight(0xffffff, 1.5));
+                
+                (new THREE.STLLoader()).load(model, function (geometry) {
+                var material = new THREE.MeshPhongMaterial({ 
+                    color: color, 
+                    specular: 100, 
+                    shininess: 100 });
+                var mesh = new THREE.Mesh(geometry, material);
+                scene.add(mesh);
+                
+                var middle = new THREE.Vector3();
+                geometry.computeBoundingBox();
+                geometry.boundingBox.getCenter(middle);
+                mesh.geometry.applyMatrix(new THREE.Matrix4().makeTranslation(-middle.x, -middle.y, -middle.z ) );
+
+                var largestDimension = Math.max(geometry.boundingBox.max.x, geometry.boundingBox.max.y, geometry.boundingBox.max.z)
+                camera.position.z = largestDimension * 1.5;
+                    
+                var animate = function () {
+                    requestAnimationFrame(animate);
+                    controls.update();
+                    renderer.render(scene, camera);
+                };                     
+                    
+                animate();
+                });
+            }                    
+
+            window.onload = function() {
+                STLViewer("stl/headphone-capgemini-la_jonxion.stl", "model-01", 0x13abdb, false);
+                STLViewer("stl/headphone-capgemini-strasbourg-ams.stl", "model-02", 0x0474ac, false);
+                STLViewer("stl/headphone-capgemini-emilie.stl", "model-03", 0xffc0cb, true);
+                STLViewer("stl/headphone-capgemini-toulouse.stl", "model-04", 0x0474ac, true);
+            }
+        </script>
+    </head>
+    <body>
+        <table border="1" width="100%">
+            <tr>
+                <td align="center" valign="middle">
+                    Introduction
+                </td>
+                <td align="center" valign="middle">
+                    Example #1 - CAPGEMINI + La Jonxion
+                </td>
+            </tr>
+            <tr>
+                <td width="50%" align="center" valign="middle">
+                    <img src="assets/images/capgemini.png" width="70%" /><br />
+                    Use mouse (left click on any model) to move camera, zoom, ...<br />
+                    Color only coming from the 3D spool being used.<br />
+                    <br />
+                    <b>Source Thingiverse : </b><a href="https://www.thingiverse.com/thing:1657541" target="_blank">headphone support</a><br />
+                    <b>STL files : </b>
+                    <a href="stl/headphone-capgemini-la_jonxion.stl">#1 "La Jonxion"</a> | 
+                    <a href="stl/headphone-capgemini-strasbourg-ams.stl">#2 "Strasbourg"</a> | 
+                    <a href="stl/headphone-capgemini-emilie.stl">#3 "Emilie"</a> | 
+                    <a href="stl/headphone-capgemini-toulouse.stl">#3 "Toulouse"</a> | 
+                    <a href="stl/screw.stl">screw</a>
+                </td>
+                <td width="50%" align="center" valign="middle">
+                    <div id="model-01" style="height: 450px"> </div>
+                </td>
+            </tr>
+            <tr>
+                <td align="center" valign="middle">
+                    Example #2 - CAPGEMINI + Strasbourg + AMS
+                </td>
+                <td align="center" valign="middle">
+                    Example #3 - CAPGEMINI + Prénom (autre font)
+                </td>
+            </tr>
+            <tr>
+                <td align="center" valign="middle">
+                    <div id="model-02" style="height: 450px"> </div>
+                </td>
+                <td align="center" valign="middle">
+                    <div id="model-03" style="height: 450px"> </div>
+                </td>
+            </tr>
+            <tr>
+                <td align="center" valign="middle">
+                    Example #4 - CAPGEMINI + Toulouse
+                </td>
+                <td align="center" valign="middle">
+                </td>
+            </tr>
+            <tr>
+                <td align="center" valign="middle">
+                    <div id="model-04" style="height: 450px"> </div>
+                </td>
+                <td align="center" valign="middle">
+                </td>
+            </tr>
+        </table>
+    </body>
+</html>
